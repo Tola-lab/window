@@ -1,13 +1,18 @@
-const forms = () => {
-    const form = document.querySelectorAll('form'),
-          inputs = document.querySelectorAll('input'), 
-          phoneInputs = document.querySelectorAll('input[name="user_phone"]');
+import checkNumInputs from "./checkNumInputs";
 
-    phoneInputs.forEach(item => {
-        item.addEventListener('input', () => {
-            item.value = item.value.replace(/\D/, '');
-        });
-    });
+const forms = (state) => {
+    const form = document.querySelectorAll('form'),
+          inputs = document.querySelectorAll('input'),
+          windows = document.querySelectorAll('[data-modal]');
+
+    function closeAllModal() {
+        windows.forEach(window => {
+            window.style.display = 'none';
+            document.body.style.overflow = '';
+        })
+    };
+          
+    checkNumInputs('input[name="user_phone"]');
 
     const message = {
         loading: 'Пожалуйста, подождите!', 
@@ -43,6 +48,11 @@ const forms = () => {
             item.appendChild(statusMessage);
 
             const formData = new FormData(item);
+            if (item.getAttribute('data-calc') === 'end') {
+                for (let key in state) {
+                    formData.append(key, state[key]);
+                }
+            }
 
             postData('assets/server.php', formData)
                 .then(res => {
@@ -54,6 +64,7 @@ const forms = () => {
                     cleaerInputs();
                     setTimeout(() => {
                         statusMessage.remove();
+                        closeAllModal();
                     }, 2000);
                 });
         });
